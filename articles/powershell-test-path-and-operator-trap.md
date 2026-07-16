@@ -53,3 +53,4 @@ if ((Test-Path $NotifyScript) -and (Test-Path $StatusJson)) {
 「エラーは出ないのに実は動いていない」タイプの静かな失敗は、個人開発の自動化を続ける中で何度も踏みました。この観点を含めた自動化基盤の全体像はこちらにまとめています: [AIエージェントで16媒体のコンテンツ運用を回す全体アーキテクチャ](https://zenn.dev/mameresearcher/articles/ai-agent-multi-channel-content-ops)
 
 
+
