@@ -252,19 +252,13 @@ Blackwell GPU、AI工場一式
 
 📩 LINE で深掘り配信中
 
-    AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
+AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
 
-    興味のあるテーマだけ選んで受け取れます
-  
+興味のあるテーマだけ選んで受け取れます
 
-    [友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=aim)
-  
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=aim)
 
-  
-
-    AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
-
-  
+AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
 
 💰 AIツールの固定費、通信費で相殺しませんか
 
