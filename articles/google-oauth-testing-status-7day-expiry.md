@@ -3,7 +3,7 @@ title: "Google OAuthで『毎週ログインを求められる』謎、原因は
 emoji: "🔁"
 type: "tech"
 topics: ["oauth", "googlecloud", "youtube", "api", "googleapis"]
-published: true
+published: false
 ---
 
 個人でYouTube Data APIを使った自動化ツールを運用していると、**なぜか週1ペースで再ログイン（OAuth同意画面）を求められる**という現象に悩まされていました。リフレッシュトークンを保存して自動更新する実装は入れているのに、なぜか定期的に失効する。原因を探ったところ、Google Cloud側の設定に単純な見落としがありました。
