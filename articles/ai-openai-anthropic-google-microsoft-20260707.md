@@ -1,5 +1,5 @@
 ---
-title: "主要AI企業5社の違いがわかる徹底ガイド｜OpenAI・Anthropic・Google・Microsoft・NVIDIAは何の会社で、何が強いのか【2026年版】"
+title: "主要AI企業5社の違いがわかる徹底ガイド｜OpenAI・Anthropic・Google・Microsoft・NVIDIA【2026年版】"
 emoji: "🤖"
 type: "tech"
 topics: ["ai"]
