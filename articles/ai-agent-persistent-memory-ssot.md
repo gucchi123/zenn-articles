@@ -99,3 +99,4 @@ flowchart TB
 - 知識層の記述は「時点のスナップショット」であり、行動前には現物確認を挟む
 
 この永続知識層があることで、[前回](https://zenn.dev/mameresearcher/articles/ai-agent-scheduled-decision-maker)扱った「判断者としてのエージェント」は、毎回ゼロから判断するのではなく、過去の学びの上に判断を積み重ねられるようになります。
+
