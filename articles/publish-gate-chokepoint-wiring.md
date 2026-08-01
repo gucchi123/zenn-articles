@@ -2,7 +2,7 @@
 title: "「判定は正しいのに直らない」— 関門を1箇所に集約しても、全経路が通っていなければ意味がない"
 emoji: "🚧"
 type: "tech"
-topics: ["python", "設計", "テスト", "リファクタリング"]
+topics: ["python", "architecture", "testing", "refactoring"]
 published: true
 ---
 
