@@ -22,6 +22,8 @@ if creds and creds.expired and creds.refresh_token:
 
 ## 原因: OAuth同意画面の「公開ステータス」
 
+![テスト中と本番環境で refresh token の寿命が変わる](/images/oauth-testing-status-expiry.png)
+
 Google Cloud Consoleの「Google Auth Platform」→「対象 (Audience)」を確認したところ、公開ステータスが **「テスト中 (Testing)」** のままになっていました。
 
 これが直接の原因です。Google Cloudでは、OAuth同意画面が「テスト中」ステータスの場合、**発行されたリフレッシュトークンが7日間で自動的に失効する**という制限があります。これは開発中のアプリが誤って本番運用されるのを防ぐための仕様で、ドキュメント上には明記されていますが、「動いているから大丈夫」という思い込みで見落としがちなポイントです。
