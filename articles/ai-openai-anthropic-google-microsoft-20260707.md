@@ -14,6 +14,8 @@ canonical: "https://xs232654.xsrv.jp/ai-openai-anthropic-google-microsoft-compan
 
 ## まず全体像：AI業界は「層」で見ると理解しやすい
 
+![AI業界のレイヤー構造と5社の立ち位置](/images/ai5-layer-map.png)
+
 個々の企業を見る前に、業界の構造を押さえておくと各社の立ち位置が明確になります。生成AI産業は、おおまかに次の4層に分かれています。
 
 層
@@ -256,7 +258,7 @@ AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料�
 
 興味のあるテーマだけ選んで受け取れます
 
-[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=aim)
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
 
 AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
 
