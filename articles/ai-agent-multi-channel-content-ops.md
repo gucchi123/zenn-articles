@@ -23,6 +23,8 @@ published: true
 
 ## 全体アーキテクチャ
 
+![知識層・判断層・生成層・配信層の4レイヤー構成](/images/multichannel-architecture.png)
+
 現在の構成を5つのレイヤーに分けています。
 
 ```mermaid
