@@ -20,6 +20,8 @@ published: true
 
 ## スケジューラは「起動」だけ、判断はLLMに委ねる
 
+![量産型との違い: 起動と判断を分離し「出さない」も正解として扱う](/images/scheduled-llm-decision.png)
+
 そこで、役割をこう分けました。
 
 - **スケジューラ（cron / Task Scheduler）**: 決まった時刻に「起動」するだけ。何をするかは指示しない。
