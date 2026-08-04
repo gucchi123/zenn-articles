@@ -56,6 +56,8 @@ IBMは2026年の年次イベントで、エンジニアの役割が「つくる�
 
 ## 4つのキャリア類型：全体像の比較
 
+![AI時代のキャリア4類型とスキルモデルの変化](/images/ai-career-4types.png)
+
 AI時代に安定して価値を出し続けられるキャリア像は、大きく4つの型に整理できます。まず全体像を比較します。
 
 類型
@@ -300,6 +302,6 @@ AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料�
 
 興味のあるテーマだけ選んで受け取れます
 
-[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=aim)
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
 
 AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
