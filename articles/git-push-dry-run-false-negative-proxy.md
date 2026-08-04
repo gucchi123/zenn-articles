@@ -139,6 +139,6 @@ def put_file(owner, repo, path, content: bytes, message, token, branch="main"):
 
 ## 関連
 
-「エラーは出ないのに実は動いていない」系の静かな失敗は、自動化を長く回しているとかなりの頻度で踏みます。同じ観点の別ケースはこちら: [PowerShellで `Test-Path $a -and $b` が謎のエラーになる罠](https://zenn.dev/mameresearcher/articles/powershell-test-path-and-operator-trap)
+「チェックは通っているのに実は壊れている」系の静かな失敗は、自動化を長く回しているとかなりの頻度で踏みます。同じ観点の別ケースはこちら: [Pillowで多言語テキストが静かに崩れる](https://zenn.dev/mameresearcher/articles/pillow-raqm-complex-text-layout)
 
 自動化基盤の全体像はこちらにまとめています: [AIエージェントで16媒体のコンテンツ運用を回す全体アーキテクチャ](https://zenn.dev/mameresearcher/articles/ai-agent-multi-channel-content-ops)
