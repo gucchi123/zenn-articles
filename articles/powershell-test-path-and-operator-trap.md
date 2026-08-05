@@ -50,15 +50,23 @@ if ((Test-Path $NotifyScript) -and (Test-Path $StatusJson)) {
 - `-and` `-or` に限らず、コマンドレットの後に続く「見慣れた記号」はまず名前付きパラメータとして解釈されると疑う
 - こうした「エラーにはなるが処理全体は止まらない」系のバグは、**失敗時に必ず通知が飛ぶような設計**にしておかないと発見が遅れる。今回も「通知が来ない」ことに気づいた人がいなければ、もっと長く放置されていたはずです
 
+## 書く前に見つける
+
+この罠は「エラーは出るが処理は止まらない」ため、実行して気づくのが遅れます。書いた時点で潰せるよう、リポジトリ全体を一度だけ検査しておくと安全です。
+
+`Test-Path`（に限らず任意のコマンドレット）の引数の位置に `-and` / `-or` が裸で置かれている箇所を拾います。
+
+```powershell
+# 「閉じ括弧を挟まずに -and / -or が現れる」= パーサーが名前付きパラメータとして読む形
+Get-ChildItem -Recurse -Filter *.ps1 |
+  Select-String -Pattern '\b(Test-Path|Get-Item|Get-Command)\s+[^()\r\n]*\s-(and|or)\b' |
+  ForEach-Object { "{0}:{1}: {2}" -f $_.Filename, $_.LineNumber, $_.Line.Trim() }
+```
+
+ヒットしたら、そのコマンドレット呼び出しを括弧で包めば解消します。正しく書かれたコード（`(Test-Path $a) -and (Test-Path $b)`）は `-and` の手前に `)` が来るのでヒットしません。
+
+PSScriptAnalyzer にはこのパターン専用のルールが無いため、こうした grep 相当の検査を CI や pre-commit に1行足しておくのが現実的です。
+
 ## 関連
 
 「エラーは出ないのに実は動いていない」タイプの静かな失敗は、個人開発の自動化を続ける中で何度も踏みました。この観点を含めた自動化基盤の全体像はこちらにまとめています: [AIエージェントで16媒体のコンテンツ運用を回す全体アーキテクチャ](https://zenn.dev/mameresearcher/articles/ai-agent-multi-channel-content-ops)
-
-
-
-
-
-
-
-
-
