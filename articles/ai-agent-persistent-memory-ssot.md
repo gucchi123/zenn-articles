@@ -203,3 +203,15 @@ GET https://graph.facebook.com/oauth/access_token
 この永続知識層があることで、[前回](https://zenn.dev/mameresearcher/articles/ai-agent-scheduled-decision-maker)扱った「判断者としてのエージェント」は、毎回ゼロから判断するのではなく、過去の学びの上に判断を積み重ねられるようになります。ただしそれは、知識層自体を疑う仕組みまで込みで設計したときだけです。
 
 索引スキーマと保存/破棄の判定基準そのものについては、[永続メモリ層、結局どう実装するか](https://zenn.dev/mameresearcher/articles/ai-agent-memory-schema-concrete)に分けて書いています。
+
+---
+
+📩 LINE で深掘り配信中
+
+AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
+
+興味のあるテーマだけ選んで受け取れます
+
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
+
+AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
