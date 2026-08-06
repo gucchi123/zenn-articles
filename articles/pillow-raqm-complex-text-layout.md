@@ -198,3 +198,15 @@ subprocess.run(["node", str(RENDERER), "--spec", str(spec_path), "--out", str(ou
 ## 関連
 
 「エラーは出ないが実は壊れている」系の静かな失敗は、自動化を続けているとかたちを変えて何度も出てきます。同種の罠をこちらにも書きました: [PowerShellで `Test-Path $a -and $b` が謎のエラーになる罠](https://zenn.dev/mameresearcher/articles/powershell-test-path-and-operator-trap)
+
+---
+
+📩 LINE で深掘り配信中
+
+AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
+
+興味のあるテーマだけ選んで受け取れます
+
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
+
+AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
