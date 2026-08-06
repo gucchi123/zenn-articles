@@ -46,11 +46,14 @@ Google Cloud Consoleの「Google Auth Platform」→「対象 (Audience)」を�
 
 「動いているから大丈夫」で見落とす設定や、エラーの出ない失敗を仕組みで潰す話は、自動化基盤の全体像としてこちらにまとめています: [AIエージェントで16媒体のコンテンツ運用を回す全体アーキテクチャ](https://zenn.dev/mameresearcher/articles/ai-agent-multi-channel-content-ops)
 
+---
 
+📩 LINE で深掘り配信中
 
+AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
 
+興味のあるテーマだけ選んで受け取れます
 
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
 
-
-
-
+AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
