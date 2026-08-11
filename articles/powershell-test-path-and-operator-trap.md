@@ -67,6 +67,42 @@ Get-ChildItem -Recurse -Filter *.ps1 |
 
 PSScriptAnalyzer にはこのパターン専用のルールが無いため、こうした grep 相当の検査を CI や pre-commit に1行足しておくのが現実的です。
 
+## 同じ形の罠: `2>&1` が「成功メッセージ」でパイプラインを止める
+
+この記事を書いたあと、同じ系統の罠をもう一つ踏みました。原因は違うのに、症状の出方がそっくりです。
+
+PowerShell 5.1 でネイティブexe（`python.exe` や別の `powershell.exe`）を呼び、その出力をログに流そうとしてこう書きました。
+
+```powershell
+& python .\build.py 2>&1 | ForEach-Object { Log $_ }
+```
+
+このスクリプトはある日から、処理の途中で止まるようになりました。エラーらしいエラーは出ません。
+
+原因は `2>&1` です。**PowerShell 5.1 は、ネイティブexeの標準エラー出力を1行ずつ `NativeCommandError` というエラーレコードに包みます。** 中身が何であってもです。
+
+つまり、exe が stderr にこう書いただけで、
+
+```
+[OK] wrote output.mp4
+```
+
+PowerShell 側ではこれが**エラー**になります。そして `$ErrorActionPreference = 'Stop'` が効いていると、**成功メッセージがパイプラインを止めます。**
+
+対処は、ネイティブ呼び出しの周囲だけ設定を戻すことです。
+
+```powershell
+$prev = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try   { & python .\build.py 2>&1 | ForEach-Object { Log $_ } }
+catch { Log "[WARN] $($_.Exception.Message)" }
+finally { $ErrorActionPreference = $prev }
+```
+
+`Test-Path` の件と共通しているのは、**PowerShell が「見慣れた記号」を自分の流儀で解釈し直す**という点です。`-and` は論理演算子ではなく名前付きパラメータとして読まれ、`2>&1` は「ログをまとめる指示」ではなくエラーレコード化として読まれます。
+
+そしてどちらも、**エラーメッセージが出ない、あるいは出ても処理が続いてしまう**ため、気づくのが遅れます。
+
 ## 関連
 
 「エラーは出ないのに実は動いていない」タイプの静かな失敗は、個人開発の自動化を続ける中で何度も踏みました。この観点を含めた自動化基盤の全体像はこちらにまとめています: [AIエージェントで16媒体のコンテンツ運用を回す全体アーキテクチャ](https://zenn.dev/mameresearcher/articles/ai-agent-multi-channel-content-ops)
