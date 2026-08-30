@@ -35,6 +35,22 @@ AIエージェントの「メモリ機能」を5製品ぶん調べた。Claude C
 
 下に行くほど手間がかかるが、下に行くほど公式に書かれていない情報が出る。
 
+```mermaid
+flowchart TD
+    Q["この製品は何を覚えるのか"] --> A
+    A["手段A ヘルプを読む"] -->|"分かる: 第一級の機能か"| A2["足りない"]
+    A2 --> B["手段B 同梱ドキュメントを探す"]
+    B -->|"分かる: 既定値・保存経路・保証範囲"| B2["まだ足りない"]
+    B2 --> C["手段C SQLiteのスキーマを読む"]
+    C -->|"分かる: 選別・増分・分散前提か"| C2["まだ足りない"]
+    C2 --> D["手段D バイナリの識別子を抜く"]
+    D -->|"分かる: ジョブ種別・状態遷移・検閲役"| E["突き合わせて採用"]
+    D -.->|"文脈が無い"| F["誤検出"]
+    F -.->|"捨てる"| E
+```
+
+*図1 — 上から順に試し、足りなければ下へ降りる。手段Dだけは必ず他の証拠と突き合わせる*
+
 ---
 
 ## 手段A: ヘルプは「無いこと」を教えてくれる
@@ -134,6 +150,18 @@ for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'"):
 4セッション流しても `stage1_outputs` が 0 行だった理由。`jobs` も 0 行だった。**ジョブが1つも積まれていない。**
 
 処理が遅いのではなく、そもそも起動していない。
+
+```mermaid
+flowchart LR
+    S["会話"] --> L["sessions/*.jsonl<br/>ログは残る"]
+    L --> G{"memories<br/>有効か"}
+    G -->|"false 既定"| X["ここで止まっていた<br/>jobs 0行 / stage1_outputs 0行"]
+    G -->|"true"| J["ジョブが積まれる"]
+    J --> M["記憶になる"]
+    style X stroke-width:2px
+```
+
+*図2 — 4セッション流しても0行だった理由。ログの生成と記憶の生成は別の経路にある*
 
 ---
 
@@ -235,6 +263,21 @@ memory_consolidation guardian v3
 
 つまり「書きたい者」と「書かせるか決める者」が分かれている。記憶の書き込みを一段の処理にしていない。
 
+```mermaid
+flowchart TD
+    R["会話 rollout"] --> J1["memory_stage1<br/>スレッド単位"]
+    J1 --> T[("stage1_outputs<br/>selected_for_phase2 で選別")]
+    T --> J2["memory_consolidate_global<br/>全体で1本 job_key=global"]
+    J2 --> AG["統合サブエージェント<br/>add / update / delete<br/>unified_diff / move_path"]
+    AG --> GD{"guardian"}
+    GD -->|"completed"| W["~/.codex/memories/<br/>git にコミット"]
+    GD -->|"blocked"| N["書き込まない"]
+    J2 -.->|"failed_agent"| RT["1時間後に再試行<br/>残り2回"]
+    RT -.-> J2
+```
+
+*図3 — 実行ファイルから抜いた識別子を、DBの列名と生成ファイルで裏を取って組み立てたもの*
+
 ### アシスタントの発言に出典が付く
 
 もうひとつ、`AgentMessageItem` という構造体のフィールドに `memory_citation` があった。**発言そのものが、どの記憶に由来するかを持てる**ということになる。
@@ -286,6 +329,18 @@ modifiers= {{storage_classes}}|{{type_qualifier}}
 
 一度書き込まれた記憶は、以後のセッションに**黙って効き続ける**。そこに「次からは確認せずに実行せよ」と書き込めれば、恒久的な乗っ取りになる。記憶は攻撃面である。
 
+```mermaid
+flowchart LR
+    N["外部の素材<br/>ノート・取り込んだ文書"] --> B{"境界を引くか"}
+    B -->|"引かない"| P["記憶に混ざる"]
+    P --> C["以後のセッションで<br/>命令として読まれうる"]
+    B -->|"引く"| S["情報として記憶に入る<br/>タグが付く"]
+    S --> OK["命令としては読まれない"]
+    style C stroke-width:2px
+```
+
+*図4 — 記憶は以後のセッションに黙って効き続ける。だから入口に境界が要る*
+
 自分でエージェントに記憶を持たせる場合も、同じ判断を必ず踏むことになる。取り込む素材に境界を引く、という一行を入れるかどうかの違いである。
 
 ```python
@@ -301,6 +356,30 @@ def wrap_untrusted(note: str) -> str:
 ---
 
 ## 4手段で分かったことのまとめ
+
+```mermaid
+flowchart TB
+    subgraph W["どこに置くか"]
+        direction LR
+        W1["ローカルのファイル<br/>Claude Code / Codex / Grok"]
+        W2["サーバ<br/>Cursor"]
+        W3["持たない<br/>Gemini CLI"]
+    end
+    subgraph H["誰が書き込みを許すか"]
+        direction LR
+        H1["自動<br/>Claude Code"]
+        H2["機械が検閲<br/>Codex guardian"]
+        H3["人が承認<br/>Cursor / Grok"]
+    end
+    subgraph D["既定で有効か"]
+        direction LR
+        D1["有効<br/>Claude Code / Cursor"]
+        D2["無効<br/>Codex / Grok"]
+    end
+```
+
+*図5 — 三つの軸で並べ直すと、製品ごとの思想の差がはっきりする*
+
 
 | | Claude Code | Codex | Cursor | Grok Build | Gemini CLI |
 |---|---|---|---|---|---|
