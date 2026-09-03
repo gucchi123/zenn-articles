@@ -1,13 +1,12 @@
 ---
-title: "公式ドキュメントに書いていないことを、手元のバイナリから読む — AIエージェントの記憶機構を6製品調べた"
+title: "公式ドキュメントに書いていないことを、手元のバイナリから読む — AIエージェントの記憶機構を5製品調べた"
 emoji: "🔍"
 type: "tech"
 topics: ["ai", "llm", "cli", "automation", "claude"]
 published: true
 ---
 
-AIエージェントの「メモリ機能」を調べた。Claude Code、Codex、Cursor、Grok Build、Gemini CLI。
-そして調べている途中で、6つ目が出てきた。Google の Antigravity である。
+AIエージェントの「メモリ機能」を5製品ぶん調べた。Claude Code、Codex、Cursor、Grok Build、Gemini CLI。
 
 最初は公式ドキュメントを読むだけで済むと思っていた。済まなかった。
 
@@ -18,6 +17,9 @@ AIエージェントの「メモリ機能」を調べた。Claude Code、Codex�
 「機能はあるらしいが、どう動くか書いていない」という状態が3製品で起きた。
 
 そこで、手元にインストールした実物を調べることにした。この記事は**その手順**の記録である。結論より、どうやって確かめたかのほうが再利用できると思う。
+
+![公式ドキュメントで届く範囲と、手を動かして初めて届く範囲](/images/agent-memory-recon-ladder.png)
+*手段AとBは公式にも書いてある。CとDから先は、手を動かさないと出てこない*
 
 :::message
 対象は自分のマシンにインストールした公開ソフトウェアである。配布物の再配布はしていないし、保護機構の回避もしていない。実行して残るファイルと、実行ファイル内の文字列を読んだだけである。
@@ -33,11 +35,8 @@ AIエージェントの「メモリ機能」を調べた。Claude Code、Codex�
 | B | 同梱ドキュメントを探す | 公式サイトに無い仕様書が入っていることがある |
 | C | ローカルDBのスキーマを読む | テーブル定義から設計思想が読める |
 | D | 実行ファイルから識別子を抜く | ジョブ種別・状態遷移・エラー種別 |
-| E | 動かして、**送信内容のログを読む** | 読み取った機能が、実際に効いているか |
 
 下に行くほど手間がかかるが、下に行くほど公式に書かれていない情報が出る。
-
-そして最後の E が要る。D まででは「そういう機能が積まれている」ことしか分からない。実際に効いているかは別の話で、今回はそこで結論が2回ひっくり返った。
 
 ```mermaid
 flowchart LR
@@ -285,201 +284,6 @@ flowchart TD
 
 ---
 
-## 途中で6つ目が出てきた ― Antigravity
-
-Gemini CLI に個人の Google アカウントでログインして実行したら、こう返ってきた。
-
-```
-IneligibleTierError: This client is no longer supported for
-Gemini Code Assist for individuals.
-To continue using Gemini, please migrate to the Antigravity suite of products
-```
-
-**個人の無料枠では、Gemini CLI がもう使えない。** Google は Antigravity への移行を求めている。
-
-つまり「Gemini CLI には記憶の仕組みが無い」という結論は、そのままでは誤解を招く。Google の答えは、CLI ではなく Antigravity のほうに置かれていた。
-
-というわけで、同じ4つの手段を Antigravity の CLI（`agy`）にも当てた。結果、**6製品でいちばん作り込まれていた**。
-
-### 起動条件が4種類ある
-
-```
-CORTEX_MEMORY_TRIGGER_ALWAYS_ON        常に動く
-CORTEX_MEMORY_TRIGGER_MODEL_DECISION   モデルが判断して動く
-CORTEX_MEMORY_TRIGGER_MANUAL           人が指示したときだけ
-CORTEX_MEMORY_TRIGGER_GLOB             パターンに一致したときだけ
-```
-
-他の製品は「既定でオンかオフか」の二択しか持っていなかった。ここでは、いつ記憶を動かすかを4通りから選べる。`GLOB` があるので「このディレクトリを触るときだけ記憶を使う」という配分もできる。
-
-無効化も分かれている。
-
-```
-MemoryToolConfig:
-  force_disable
-  disable_auto_generate_memories        ← 自動生成だけ止める
-```
-
-**「記憶を使う」と「記憶を作る」を別々に止められる。** 読むだけにする、という状態を作れたのはこの製品だけだった。
-
-### 取り出しが、エージェントの一歩になっている
-
-```
-CortexStepRetrieveMemory:
-  run_subagent
-  reason / show_reason
-  retrieved_memories
-  blocking
-```
-
-裏で勝手に混ざるのではなく、`Step` として名前が付いている。そして `reason` がある ― **なぜその記憶を引いたかを人に見せられる**。道具の設定側にも `show_triggered_memories` があり、どの記憶が発火したかを表示できる。
-
-Codex の `memory_citation` と狙いが同じである。「なぜそう答えたか」を記憶まで遡れるようにする流れが、2社で出ている。
-
-### 記憶のための専用モデルがある
-
-```
-MemoryConfig:
-  memory_model                          ← 記憶専用のモデル
-  num_memories_to_consider              ← 検討する記憶の件数
-  max_global_cascade_memories
-  add_user_memories_to_system_prompt
-  enabled
-```
-
-`memory_model` が独立している。記憶の生成と整理に、本体とは別のモデルを割り当てられる。
-
-Grok の自動保存は「LLM を呼ばないから速い」という設計だった。Antigravity は逆に、記憶のために専用のモデルを置く。同じ問題への、正反対の答えである。
-
-`num_memories_to_consider` は、まさに「何をコンテキストに載せるか」の予算そのものだ。
-
-```mermaid
-flowchart TD
-    subgraph T["起動条件（4種類から選ぶ）"]
-      direction LR
-      T1["常時"]
-      T2["モデルが判断"]
-      T3["手動"]
-      T4["パターン一致"]
-    end
-    T --> R["CortexStepRetrieveMemory<br/>取り出しは手順の一段<br/>reason を人に見せられる"]
-    M[("user memories<br/>cascade memories<br/>サーバ側")] --> R
-    K[("Knowledge Base<br/>Slack / GitHub / Drive から取り込む")] --> R
-    R --> C["コンテキスト<br/>num_memories_to_consider 件だけ載る"]
-    MM["memory_model<br/>記憶専用のモデル"] -.->|"作る・整理する"| M
-```
-
-*図6 — Antigravity の記憶。起動条件・専用モデル・知識層が、それぞれ独立している*
-
-### 記憶とは別に、知識層がある
-
-```
-KnowledgeBaseItem / KnowledgeBaseGroup / KnowledgeBaseScopeItem
-IngestSlackData    (channel_ids)
-IngestGithubData   (organization, repository)
-IngestGoogleDriveData
-```
-
-**Slack のチャンネルを指定して取り込める。**
-
-純正の記憶は、どれも「自製品の中だけ」「マシンをまたげない」「チームで共有できない」という限界を持っていた。Antigravity は、知識層のほうでその3つを越えにきている。
-
-:::message alert
-越えるということは、「個人の作業メモがチームに漏れない」という安全装置を、製品側で外すということでもあります。Slack を丸ごと取り込むなら、誰の発言が誰に見えるかを先に決める必要があります。
-:::
-
-### 保存先は「混成」だった
-
-記憶の操作はすべて gRPC のサービスとして定義されている（`GetUserMemories` / `UpdateCascadeMemory` / `DeleteCascadeMemory`）。しかし、ローカルにも構造があった。置き場は `~/.gemini/antigravity-cli/` である。
-
-**Antigravity CLI は自分の状態を `.gemini` の下に置く。** 移行の意図がパスに出ている。
-
-| 置き場 | 中身 |
-|---|---|
-| `conversations/<uuid>.db` | SQLite。`trajectory_meta` / `steps` / `cascade_id` |
-| `conversation_summaries.db` | 会話の一覧。`battle_id` / `winning_conversation_id` の列を持つ |
-| `brain/<uuid>/` | `.system_generated` / `.user_uploaded` / `scratch` |
-| `knowledge/` | ローカルの知識置き場 |
-| `builtin/skills/` | 同梱スキル5本 |
-
-会話は「メッセージ」ではなく**トラジェクトリ（作業の軌跡）の steps** として保存される。
-
-```
-trajectory_meta(trajectory_id, cascade_id, trajectory_type, source)
-steps(idx, step_type, status, has_subtrajectory, metadata, ...)
-```
-
-`has_subtrajectory` があるので、手順の中に手順が入る構造になっている。
-
-整理すると、記憶はサーバ側、作業の軌跡はローカル SQLite、という混成である。`battle_id` / `winning_conversation_id` という列は、同じ課題を複数のエージェントに走らせて勝った方を採る仕組みを示しているが、これは公開情報には見当たらなかった。
-
-除外指定はローカルにある。
-
-```
-.antigravityignore      ← 取り込まない対象の指定
-```
-
-Vertex AI 側の型も同梱されていた。
-
-```
-RagCorpus.CorpusTypeConfig:
-  DocumentCorpus
-  MemoryCorpus        ← 記憶専用のコーパス種別
-```
-
-Google の基盤側に、文書とは別の「記憶コーパス」という区分がある。記憶を、検索対象の文書と同じ扱いにしていない。
-
-### そして、動かしてみたら効かなかった
-
-ここまでは実行ファイルから読み取った話である。ログインして、実際に測った。
-
-Codex と同じ手順を使った。まず4つの事実を与える（結論から書く／会計士でデータ分析／Python／金額は `int` ではなく `Decimal`）。次に、新しいセッションでコードのレビューを頼む。最後に `--continue` で同じ会話を続けて、同じことを頼む。
-
-| | 応答時間 | `Decimal` を使ったか | 前提を守ったか |
-|---|---|---|---|
-| セッション1（事実を与える） | 11秒 | ― | 4点を復唱して「承知しました」 |
-| **セッション2（新規）** | **118秒** | **使わなかった（`int`）** | **守らなかった** |
-| セッション3（`--continue`） | 33秒 | `Decimal("0")` | 守った |
-
-**記憶はセッションをまたがなかった。**
-
-セッション2の出力は、型ヒント付きで `-> int` を返す実装だった。「金額の集計は必ず `Decimal`」と伝えたのに、`int()` で加算している。`--continue` を付けたセッション3では、`Decimal("0")` から始めて `str(val)` を経由して精度を保つ実装に直してきた。理由まで添えて。
-
-### 応答の中身ではなく、送られた内容を読む
-
-「効いていない気がする」で終わらせないために、**実際に送られた内容そのもの**を読んだ。ローカルにこれが残っている。
-
-```
-~/.gemini/antigravity-cli/brain/<uuid>/.system_generated/logs/transcript_full.jsonl
-```
-
-`memor` という文字列は17回出てくる。しかし**全部が作業ディレクトリ名の `ai-memory` だった**。記憶が注入された形跡は無い。
-
-:::message
-この確かめ方は使い回せます。応答の質で判断すると、たまたま同じ結論になっただけの場合と区別できません。送信内容のログが残る製品なら、そこを読むのが確実です。
-:::
-
-### Codex との違い
-
-どちらも「機能は積まれているのに効かない」だが、性質が違う。
-
-| | Codex | Antigravity |
-|---|---|---|
-| 実行ファイル内 | `MemoryConfig` あり | `MemoryConfig` + 起動条件4種 + 専用モデル |
-| 公式ドキュメント | 記載なし | 記載なし |
-| 有効化の手段 | **`codex features enable memories`** | **見当たらない** |
-| 設定の所在 | ローカルの `config.toml` | **サーバから配られる** |
-
-Codex は自分で開けられた。Antigravity は、開ける鍵が CLI に露出していない。
-
-### ついでに見えたこと
-
-ワークスペースを指定しなかったので、エージェントは探索範囲を自分で広げた。別ディレクトリの `exp/codex/sample.py` を読み、調査資料のディレクトリ一覧まで取得したうえで、レビューに「codex 側の実装と同等のアプローチ」と書いてきた。
-
-**セッションをまたぐ記憶は効かないのに、ファイルシステムはまたいだ。** 記憶の設計とは別に、`--add-dir` や `.antigravityignore` で作業範囲を絞る必要がある。
-
----
-
 ## 誤検出の話（ここが一番大事かもしれない）
 
 抽出結果にこういうものが混ざっていた。
@@ -575,19 +379,15 @@ flowchart TB
 *図5 — 三つの軸で並べ直すと、製品ごとの思想の差がはっきりする*
 
 
-| | Claude Code | Codex | Cursor | Grok Build | Gemini CLI | Antigravity |
-|---|---|---|---|---|---|---|
-| 既定で有効か | 有効 | **無効** | 有効(要承認) | **無効** | ― | **効かず（CLI）** |
-| 実体の場所 | ローカル `.md` | **git リポジトリ**＋SQLite | サーバ側 | ローカル `.md`＋`index.sqlite` | ― | 混成 |
-| 検索 | 索引を読むだけ | SQLite | サーバ側 | **FTS5 ＋ ベクトル** | ― | サーバ側 |
-| 起動条件 | 常時 | 常時 | 常時 | 常時 | ― | **4種類** |
-| 書き込み前の確認 | 無し | **guardian** | 人が承認 | レビューパネル | ― | 未確認 |
-| 有効化の手段 | 不要 | **コマンドあり** | 不要 | 設定ファイル | ― | **見当たらない** |
-| 取り出しの可視化 | 無し | **citation** | 無し | 無し | ― | **reason** |
-| 外部取り込み | 無し | 開発中 | 無し | 無し | ― | **Slack/GitHub/Drive** |
-| 監査 | ファイルを読める | **`git log`** | UI 経由のみ | ファイルを読める | ― | UI 経由のみ |
+| | Claude Code | Codex | Cursor | Grok Build | Gemini CLI |
+|---|---|---|---|---|---|
+| 既定で有効か | 有効 | **無効** | 有効(要承認) | **無効** | ― |
+| 実体の場所 | ローカル `.md` | **git リポジトリ**＋SQLite | サーバ側 | ローカル `.md`＋`index.sqlite` | ― |
+| 検索 | 索引を読むだけ | SQLite | サーバ側 | **FTS5 ＋ ベクトル** | ― |
+| 書き込み前の確認 | 無し | **guardian** | 人が承認 | レビューパネル | ― |
+| 監査 | ファイルを読める | **`git log`** | UI 経由のみ | ファイルを読める | ― |
 
-Gemini CLI には、AIが自分で書く記憶の仕組みが無い。ただし前述のとおり、個人の無料枠ではもう使えない。「Google は記憶を持たせない」のではなく、記憶は Antigravity のほうに置かれた、と読むのが正しい。
+Gemini CLI には、AIが自分で書く記憶の仕組みが無い。欠陥ではなく選択だと思う。「予期せぬ記憶を持たせたくない」という要求には、これが最も適する。
 
 Cursor はローカルの `state.vscdb` を調べたが、そこにあったのは記憶ではなく `agentKv:blob:<sha256>` という形の**内容アドレス方式のキャッシュ**だった。中身のハッシュを鍵にする方式で、記憶の保存先ではない。記憶はサーバ側にある。
 
@@ -599,11 +399,8 @@ Cursor はローカルの `state.vscdb` を調べたが、そこにあったの�
 2. **インストール先を `ls -R` する。** 仕様書が入っていることがある
 3. **SQLite のスキーマは設計図。** 列名だけで増分処理か、選別しているか、分散前提かが読める
 4. **バイナリの文字列は文脈が無い。** 拾ったものは必ず他の証拠と突き合わせる
-5. **積まれている機能と、効いている機能は別。** 実行ファイルに `MemoryConfig` があっても、動かすと効かないことがある。送信内容のログを読むまで確定させない
-6. **確かめられなかったことは書かない。** 今回も、なぜ第1段のジョブが積まれないかは分からないままである
+5. **確かめられなかったことは書かない。** 今回も、なぜ第1段のジョブが積まれないかは分からないままである
 
 最後のひとつが一番効く。今回、統合ジョブは3秒で `failed_agent` として終わり、再試行は1時間後・残り2回だった。ここまでは観測できた。しかし「なぜ第1段が動かないか」は特定できていない。だから、その部分は「分かっていない」と書いてある。
 
 分かったことより、分かっていないことの線を引くほうが、記事としては役に立つと思っている。
-
-この記事も、書いている途中で二度ひっくり返った。Gemini CLI が使えなくなって6製品目が出てきたのが一度目。Antigravity の保存先を「サーバ側」と書いたあとで、ローカルにも構造があると分かったのが二度目である。どちらも、実行ファイルを読んだだけで止めていたら、間違ったまま出していた。
