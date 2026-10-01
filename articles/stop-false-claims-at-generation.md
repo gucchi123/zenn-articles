@@ -86,3 +86,14 @@ if (orig_title and orig_title != title and partner_line_end_reason(title)
 
 公式の案内が変わったときは、関門を外さず、事実ファイルと関門の公式文言を更新する決まりにした。関門が見ているのは「言い方」ではなく「公式と合っているか」なので、基準の側を動かす。
 
+---
+
+📩 LINE で深掘り配信中
+
+AI / マーケ / 楽天モバの限定情報を 週1〜2回 お届け（無料）
+
+興味のあるテーマだけ選んで受け取れます
+
+[友だち追加する 👉](https://mame-follow.suikou0.workers.dev/follow?cha=zenn)
+
+AIエージェント運用 / MMM / 楽天モバ紹介 の3テーマから選べます
