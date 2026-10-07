@@ -3,7 +3,7 @@ title: "ずらしたはずの定期タスクが、スタンバイ復帰で同じ
 emoji: "🚦"
 type: "tech"
 topics: ["windows", "taskscheduler", "python", "automation", "個人開発"]
-published: false
+published: true
 ---
 
 個人の自動化プロジェクトで、Windows のタスクスケジューラに 170 本ほどの定期タスクを載せている。各 SNS の数字を取ってくる集計タスクもその一部で、夜の 21:05〜21:50 に数分ずつずらして並べてある。一部には RandomDelay も付けてある。
