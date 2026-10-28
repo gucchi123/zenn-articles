@@ -3,7 +3,7 @@ title: "スマホ4社の月額を「ギガ数」で比べるツールをCloudfla
 emoji: "📱"
 type: "tech"
 topics: ["cloudflare", "cloudflarepages", "javascript", "個人開発", "seo"]
-published: false
+published: true
 ---
 
 スマホの料金を比べる記事は多いのですが、ほとんどが「3GBなら」「20GBなら」と数点だけを並べています。実際には、毎月何GB使うかで一番安い会社が何度も入れ替わります。
