@@ -3,7 +3,7 @@ title: "衛星とスマホの直接通信、2つの設計方針を公開情報�
 emoji: "🛰️"
 type: "idea"
 topics: ["satellite", "mobile", "network", "starlink", "telecom"]
-published: false
+published: true
 ---
 
 2026年11月9日、楽天グループと米 AST SpaceMobile が、衛星とスマホの直接通信（衛星ダイレクト通信）の新会社「Rakuten AST」を設立すると発表しました。これで日本の携帯4社が、そろってこの分野に取り組むことになります。
