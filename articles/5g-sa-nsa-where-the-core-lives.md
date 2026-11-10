@@ -83,3 +83,4 @@ Android の公式リファレンスには、この違いがはっきり書かれ
 - Android Developers「TelephonyDisplayInfo」https://developer.android.com/reference/android/telephony/TelephonyDisplayInfo
 
 ※筆者は楽天グループの従業員です。この記事は公開資料をもとにした個人の整理で、会社の見解ではありません。
+
